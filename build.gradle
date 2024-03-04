@@ -26,7 +26,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'ca.bazlur.mandelbrot'
-    mainClass = 'ca.bazlur.mandelbrot.NewtonFractal'
+    mainClass = 'ca.bazlur.mandelbrot.MandelbrotApplication'
 }
 
 javafx {
@@ -37,12 +37,6 @@ javafx {
 dependencies {
     implementation('org.controlsfx:controlsfx:11.1.2')
     implementation('org.kordamp.ikonli:ikonli-javafx:12.3.1')
-//    implementation('com.github.almasb:fxgl:17.3') {
-//        exclude(group: 'org.openjfx')
-//        exclude(group: 'org.jetbrains.kotlin')
-//    }
-
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib"
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
