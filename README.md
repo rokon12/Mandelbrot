@@ -2,7 +2,6 @@
 
 Mandelbrot Explorer is a JavaFX application that allows users to visualize and explore the Mandelbrot set. You can zoom in and out and drag around to explore different areas of the set.
 
-
 ## Functionality
 
 The application provides the following features:
@@ -30,18 +29,10 @@ To run this application, you will need:
 1. Clone the repository to your local machine.
 2. Open the project in your preferred Java IDE.
 3. Make sure that the JDK is set to the correct version (JDK 21) in your IDE's project structure settings.
-4. Include the JavaFX library to your project structure.
 
 ## Usage
 
 Run the main method in the `MandelbrotApplication` class to start the program. This will open a window showing the Mandelbrot visualization. You can click and drag to pan around the visualization, and use the "Zoom In" and "Zoom Out" buttons to zoom in and out.
-
-## Built With
-
-1. Java SDK 21.
-2. JavaFX.
-
-# Outcomes
 
 # Outcomes
 
