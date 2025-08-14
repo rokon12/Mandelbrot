@@ -3,6 +3,8 @@ package ca.bazlur.mandelbrot;
 public interface MandelbrotCalculatorStrategy extends AutoCloseable {
     int[][] calculateIterations(int width, int height, double centerX, double centerY, double zoom, int maxIterations);
     
+    int[][] calculateIterations(int width, int height, double centerX, double centerY, double zoom, int maxIterations, Fractal fractal);
+    
     @Override
     void close();
     

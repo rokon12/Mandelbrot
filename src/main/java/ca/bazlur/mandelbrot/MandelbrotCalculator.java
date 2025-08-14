@@ -26,6 +26,11 @@ public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
     }
 
     public int[][] calculateIterations(int width, int height, double centerX, double centerY, double zoom, int maxIterations) {
+        return calculateIterations(width, height, centerX, centerY, zoom, maxIterations, new MandelbrotFractal());
+    }
+    
+    @Override
+    public int[][] calculateIterations(int width, int height, double centerX, double centerY, double zoom, int maxIterations, Fractal fractal) {
         int[][] iterations = new int[width][height];
 
         // Divide image into sections (adjust as needed)
@@ -35,7 +40,7 @@ public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
         for (int i = 0; i < numThreads; i++) {
             int startRow = i * rowsPerThread;
             int endRow = (i == numThreads - 1) ? height : startRow + rowsPerThread;
-            Future<Void> future = executor.submit(new MandelbrotTask(iterations, startRow, endRow, width, height, centerX, centerY, zoom, maxIterations));
+            Future<Void> future = executor.submit(new MandelbrotTask(iterations, startRow, endRow, width, height, centerX, centerY, zoom, maxIterations, fractal));
             futures.add(future);
         }
 
@@ -50,17 +55,8 @@ public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
         return iterations;
     }
 
-    private static int calculatePointIterations(ComplexNumber c, int maxIterations) {
-        ComplexNumber z = new ComplexNumber(0, 0);
-        int iterations = 0;
-        double escapeRadiusSquared = 256.0; // Use larger escape radius for smoother coloring
-
-        while (z.magnitudeSquared() < escapeRadiusSquared && iterations < maxIterations) {
-            z = z.square().add(c);
-            iterations++;
-        }
-
-        return iterations;
+    private static int calculatePointIterations(ComplexNumber c, int maxIterations, Fractal fractal) {
+        return fractal.calculateIterations(c, maxIterations);
     }
 
     private static ComplexNumber screenToComplex(int x, int y, int width, int height, double centerX, double centerY, double zoom) {
@@ -79,9 +75,10 @@ public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
         private final double centerY;
         private final double zoom;
         private final int maxIterations;
+        private final Fractal fractal;
 
         public MandelbrotTask(int[][] iterations, int startRow, int endRow, int width, int height,
-                              double centerX, double centerY, double zoom, int maxIterations) {
+                              double centerX, double centerY, double zoom, int maxIterations, Fractal fractal) {
             this.iterations = iterations;
             this.startRow = startRow;
             this.endRow = endRow;
@@ -91,6 +88,7 @@ public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
             this.centerY = centerY;
             this.zoom = zoom;
             this.maxIterations = maxIterations;
+            this.fractal = fractal;
         }
 
         @Override
@@ -98,7 +96,7 @@ public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
             for (int x = 0; x < width; x++) {
                 for (int y = startRow; y < endRow; y++) {
                     ComplexNumber c = screenToComplex(x, y, width, height, centerX, centerY, zoom);
-                    iterations[x][y] = calculatePointIterations(c, maxIterations);
+                    iterations[x][y] = calculatePointIterations(c, maxIterations, fractal);
                 }
             }
 

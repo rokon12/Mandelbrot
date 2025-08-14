@@ -61,6 +61,7 @@ public class MandelbrotApplication extends Application {
     private double centerY = 0;
     private MandelbrotCalculatorStrategy calculator;
     private ColorPalette.PaletteType currentPalette = ColorPalette.PaletteType.SMOOTH;
+    private Fractal currentFractal = new MandelbrotFractal();
     
     private final AtomicBoolean isCalculating = new AtomicBoolean(false);
     private Task<int[][]> currentTask;
@@ -406,6 +407,68 @@ public class MandelbrotApplication extends Application {
             }
         });
         
+        // Fractal type selector
+        ComboBox<String> fractalSelector = new ComboBox<>();
+        fractalSelector.getItems().addAll(
+            "Mandelbrot",
+            "Julia Set",
+            "Burning Ship",
+            "Tricorn",
+            "Multibrot (d=3)",
+            "Multibrot (d=4)",
+            "Phoenix"
+        );
+        fractalSelector.setValue("Mandelbrot");
+        fractalSelector.setOnAction(e -> {
+            String selectedFractal = fractalSelector.getValue();
+            switch (selectedFractal) {
+                case "Julia Set" -> {
+                    currentFractal = new JuliaFractal();
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+                case "Burning Ship" -> {
+                    currentFractal = new BurningShipFractal();
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+                case "Tricorn" -> {
+                    currentFractal = new TricornFractal();
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+                case "Multibrot (d=3)" -> {
+                    currentFractal = new MultibrotFractal(3);
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+                case "Multibrot (d=4)" -> {
+                    currentFractal = new MultibrotFractal(4);
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+                case "Phoenix" -> {
+                    currentFractal = new PhoenixFractal();
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+                default -> {
+                    currentFractal = new MandelbrotFractal();
+                    centerX = currentFractal.getDefaultCenter().real();
+                    centerY = currentFractal.getDefaultCenter().imaginary();
+                    ZOOM = currentFractal.getDefaultZoom();
+                }
+            }
+            updateCoordinateLabel();
+            calculateMandelbrot();
+        });
+        
         // Calculator strategy selector
         ComboBox<MandelbrotCalculatorStrategy.StrategyType> strategySelector = new ComboBox<>();
         strategySelector.getItems().addAll(MandelbrotCalculatorStrategy.StrategyType.values());
@@ -420,6 +483,9 @@ public class MandelbrotApplication extends Application {
         });
         
         controlPanel.getChildren().addAll(
+            new Label("Fractal:"),
+            fractalSelector,
+            new Separator(),
             new Label("Max Iterations:"), 
             iterationField, 
             calculateButton, 
@@ -528,7 +594,7 @@ public class MandelbrotApplication extends Application {
         currentTask = new Task<>() {
             @Override
             protected int[][] call() {
-                return calculator.calculateIterations(WIDTH, HEIGHT, centerX, centerY, ZOOM, maxIterations);
+                return calculator.calculateIterations(WIDTH, HEIGHT, centerX, centerY, ZOOM, maxIterations, currentFractal);
             }
         };
         
@@ -716,7 +782,7 @@ public class MandelbrotApplication extends Application {
                     // Calculate HD iterations
                     int maxIterations = Integer.parseInt(iterationField.getText());
                     int[][] hdIterations = calculator.calculateIterations(
-                        hdWidth, hdHeight, centerX, centerY, ZOOM, maxIterations
+                        hdWidth, hdHeight, centerX, centerY, ZOOM, maxIterations, currentFractal
                     );
                     
                     // Create HD image
