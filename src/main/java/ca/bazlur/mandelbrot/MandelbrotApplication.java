@@ -11,6 +11,11 @@ import javafx.scene.control.*;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.ZoomEvent;
+import javafx.scene.input.RotateEvent;
+import javafx.scene.input.SwipeEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -98,6 +103,8 @@ public class MandelbrotApplication extends Application {
         // Event Handlers
         setupMouseHandlers();
         setupScrollHandler();
+        setupGestureHandlers();
+        setupKeyboardHandlers(scene);
         
         // Initial Calculation
         calculateMandelbrot();
@@ -138,6 +145,227 @@ public class MandelbrotApplication extends Application {
             }
         });
     }
+    
+    private void setupGestureHandlers() {
+        // Pinch-to-zoom gesture (trackpad/touchscreen)
+        canvas.setOnZoom((ZoomEvent event) -> {
+            if (!isCalculating.get()) {
+                double zoomFactor = event.getZoomFactor();
+                // Get the center point of the zoom gesture
+                double x = event.getX();
+                double y = event.getY();
+                zoomAt(x, y, zoomFactor);
+                event.consume();
+            }
+        });
+        
+        // Handle zoom gesture start
+        canvas.setOnZoomStarted((ZoomEvent event) -> {
+            // Could store initial state here if needed
+            event.consume();
+        });
+        
+        // Handle zoom gesture finish
+        canvas.setOnZoomFinished((ZoomEvent event) -> {
+            // Could trigger final high-quality render here
+            event.consume();
+        });
+        
+        // Rotation gesture (two-finger rotate on trackpad/touchscreen)
+        canvas.setOnRotate((RotateEvent event) -> {
+            // Could implement rotation of the view if desired
+            // For now, we'll just consume the event
+            event.consume();
+        });
+        
+        // Swipe gestures for quick navigation
+        canvas.setOnSwipeUp((SwipeEvent event) -> {
+            if (!isCalculating.get()) {
+                // Pan up
+                centerY -= (HEIGHT * 0.25) / ZOOM;
+                updateCoordinateLabel();
+                calculateMandelbrot();
+                event.consume();
+            }
+        });
+        
+        canvas.setOnSwipeDown((SwipeEvent event) -> {
+            if (!isCalculating.get()) {
+                // Pan down
+                centerY += (HEIGHT * 0.25) / ZOOM;
+                updateCoordinateLabel();
+                calculateMandelbrot();
+                event.consume();
+            }
+        });
+        
+        canvas.setOnSwipeLeft((SwipeEvent event) -> {
+            if (!isCalculating.get()) {
+                // Pan left
+                centerX -= (WIDTH * 0.25) / ZOOM;
+                updateCoordinateLabel();
+                calculateMandelbrot();
+                event.consume();
+            }
+        });
+        
+        canvas.setOnSwipeRight((SwipeEvent event) -> {
+            if (!isCalculating.get()) {
+                // Pan right
+                centerX += (WIDTH * 0.25) / ZOOM;
+                updateCoordinateLabel();
+                calculateMandelbrot();
+                event.consume();
+            }
+        });
+    }
+    
+    private void setupKeyboardHandlers(Scene scene) {
+        scene.setOnKeyPressed((KeyEvent event) -> {
+            if (isCalculating.get()) {
+                return; // Don't process keys while calculating
+            }
+            
+            KeyCode code = event.getCode();
+            boolean shift = event.isShiftDown();
+            boolean ctrl = event.isControlDown() || event.isMetaDown();
+            
+            switch (code) {
+                // Zoom controls
+                case PLUS, EQUALS, ADD -> {
+                    // + or = key: zoom in at center
+                    zoomAt(WIDTH / 2.0, HEIGHT / 2.0, ZOOM_FACTOR);
+                }
+                case MINUS, SUBTRACT -> {
+                    // - key: zoom out at center
+                    zoomAt(WIDTH / 2.0, HEIGHT / 2.0, 1.0 / ZOOM_FACTOR);
+                }
+                
+                // Arrow key navigation
+                case UP, W -> {
+                    double panAmount = shift ? 0.5 : 0.1; // Shift for faster pan
+                    centerY -= (HEIGHT * panAmount) / ZOOM;
+                    updateCoordinateLabel();
+                    calculateMandelbrot();
+                }
+                case DOWN -> {
+                    double panAmount = shift ? 0.5 : 0.1;
+                    centerY += (HEIGHT * panAmount) / ZOOM;
+                    updateCoordinateLabel();
+                    calculateMandelbrot();
+                }
+                case LEFT, A -> {
+                    double panAmount = shift ? 0.5 : 0.1;
+                    centerX -= (WIDTH * panAmount) / ZOOM;
+                    updateCoordinateLabel();
+                    calculateMandelbrot();
+                }
+                case RIGHT, D -> {
+                    double panAmount = shift ? 0.5 : 0.1;
+                    centerX += (WIDTH * panAmount) / ZOOM;
+                    updateCoordinateLabel();
+                    calculateMandelbrot();
+                }
+                
+                // Quick actions
+                case R -> {
+                    if (ctrl) {
+                        // Ctrl+R: Reset view
+                        resetView();
+                    } else {
+                        // R: Recalculate
+                        calculateMandelbrot();
+                    }
+                }
+                case SPACE -> {
+                    // Space: Recalculate
+                    calculateMandelbrot();
+                }
+                case ESCAPE -> {
+                    // ESC: Reset view
+                    resetView();
+                }
+                
+                // Save shortcuts
+                case S -> {
+                    if (ctrl && shift) {
+                        // Ctrl+Shift+S: Save HD
+                        saveImage(true);
+                    } else if (ctrl) {
+                        // Ctrl+S: Save current
+                        saveImage(false);
+                    } else if (!shift) {
+                        // S key alone: pan down (same as arrow down)
+                        double panAmount = 0.1;
+                        centerY += (HEIGHT * panAmount) / ZOOM;
+                        updateCoordinateLabel();
+                        calculateMandelbrot();
+                    }
+                }
+                
+                // Iteration controls
+                case I -> {
+                    if (shift) {
+                        // Shift+I: Decrease iterations
+                        int current = Integer.parseInt(iterationField.getText());
+                        if (current > 50) {
+                            iterationField.setText(String.valueOf(current - 50));
+                            calculateMandelbrot();
+                        }
+                    } else {
+                        // I: Increase iterations
+                        int current = Integer.parseInt(iterationField.getText());
+                        if (current < 10000) {
+                            iterationField.setText(String.valueOf(current + 50));
+                            calculateMandelbrot();
+                        }
+                    }
+                }
+                
+                // Help
+                case H, F1 -> {
+                    showKeyboardShortcuts();
+                }
+            }
+            
+            event.consume();
+        });
+    }
+    
+    private void showKeyboardShortcuts() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Keyboard Shortcuts");
+        alert.setHeaderText("Mandelbrot Explorer Keyboard Shortcuts");
+        
+        String shortcuts = """
+            Navigation:
+            • Arrow Keys / WASD: Pan view
+            • Shift + Arrows: Pan faster
+            • +/- or =/- : Zoom in/out
+            • Mouse scroll: Zoom at cursor
+            • Pinch gesture: Zoom (trackpad)
+            • Swipe gestures: Quick pan
+            
+            Actions:
+            • Space / R: Recalculate
+            • Ctrl+R / ESC: Reset view
+            • I: Increase iterations (+50)
+            • Shift+I: Decrease iterations (-50)
+            
+            File Operations:
+            • Ctrl+S: Save current view
+            • Ctrl+Shift+S: Save HD image
+            
+            Other:
+            • Double-click: Zoom in at point
+            • Drag: Pan view
+            • H / F1: Show this help
+            """;
+        
+        alert.setContentText(shortcuts);
+        alert.getDialogPane().setPrefWidth(450);
+        alert.showAndWait();
+    }
 
     private HBox createControlPanel() {
         HBox controlPanel = new HBox(10);
@@ -158,12 +386,14 @@ public class MandelbrotApplication extends Application {
         Button resetButton = new Button("Reset View");
         Button saveButton = new Button("Save Image");
         Button saveHDButton = new Button("Save HD");
+        Button helpButton = new Button("Help (H)");
         
         zoomInButton.setOnAction(e -> zoomAt(WIDTH / 2.0, HEIGHT / 2.0, ZOOM_FACTOR));
         zoomOutButton.setOnAction(e -> zoomAt(WIDTH / 2.0, HEIGHT / 2.0, 1.0 / ZOOM_FACTOR));
         resetButton.setOnAction(e -> resetView());
         saveButton.setOnAction(e -> saveImage(false));
         saveHDButton.setOnAction(e -> saveImage(true));
+        helpButton.setOnAction(e -> showKeyboardShortcuts());
         
         // Color palette selector
         ComboBox<ColorPalette.PaletteType> paletteSelector = new ComboBox<>();
@@ -204,7 +434,9 @@ public class MandelbrotApplication extends Application {
             new Label("Color:"),
             paletteSelector,
             new Label("Calculator:"),
-            strategySelector
+            strategySelector,
+            new Separator(),
+            helpButton
         );
         
         return controlPanel;
