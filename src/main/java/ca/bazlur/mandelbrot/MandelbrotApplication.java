@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ScrollEvent;
@@ -82,6 +83,12 @@ public class MandelbrotApplication extends Application {
         pixelWriter = image.getPixelWriter();
         
         BorderPane root = new BorderPane();
+        
+        // Create menu bar
+        MenuBar menuBar = createMenuBar();
+        root.setTop(menuBar);
+        
+        // Bottom panel with minimal controls
         VBox bottomPanel = new VBox(5);
         bottomPanel.getChildren().addAll(createControlPanel(), createStatusPanel());
         root.setBottom(bottomPanel);
@@ -333,6 +340,16 @@ public class MandelbrotApplication extends Application {
         });
     }
     
+    private void showAbout() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About Mandelbrot Explorer");
+        alert.setHeaderText("Mandelbrot Explorer");
+        alert.setContentText("An interactive fractal explorer supporting multiple fractal types\n" +
+                "including Mandelbrot, Julia Sets, Burning Ship, Tricorn, and more.\n\n" +
+                "Version 1.0");
+        alert.showAndWait();
+    }
+    
     private void showKeyboardShortcuts() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Keyboard Shortcuts");
@@ -368,6 +385,63 @@ public class MandelbrotApplication extends Application {
         alert.showAndWait();
     }
 
+    private MenuBar createMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        
+        // File menu
+        Menu fileMenu = new Menu("File");
+        MenuItem saveItem = new MenuItem("Save Image...");
+        MenuItem saveHDItem = new MenuItem("Save HD Image...");
+        MenuItem exitItem = new MenuItem("Exit");
+        
+        saveItem.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
+        saveHDItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Shift+S"));
+        exitItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
+        
+        saveItem.setOnAction(e -> saveImage(false));
+        saveHDItem.setOnAction(e -> saveImage(true));
+        exitItem.setOnAction(e -> Platform.exit());
+        
+        fileMenu.getItems().addAll(saveItem, saveHDItem, new SeparatorMenuItem(), exitItem);
+        
+        // View menu
+        Menu viewMenu = new Menu("View");
+        MenuItem zoomInItem = new MenuItem("Zoom In");
+        MenuItem zoomOutItem = new MenuItem("Zoom Out");
+        MenuItem resetViewItem = new MenuItem("Reset View");
+        MenuItem fullscreenItem = new MenuItem("Toggle Fullscreen");
+        
+        zoomInItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Plus"));
+        zoomOutItem.setAccelerator(KeyCombination.keyCombination("Ctrl+Minus"));
+        resetViewItem.setAccelerator(KeyCombination.keyCombination("Ctrl+R"));
+        fullscreenItem.setAccelerator(KeyCombination.keyCombination("F11"));
+        
+        zoomInItem.setOnAction(e -> zoomAt(WIDTH / 2.0, HEIGHT / 2.0, ZOOM_FACTOR));
+        zoomOutItem.setOnAction(e -> zoomAt(WIDTH / 2.0, HEIGHT / 2.0, 1.0 / ZOOM_FACTOR));
+        resetViewItem.setOnAction(e -> resetView());
+        fullscreenItem.setOnAction(e -> {
+            Stage stage = (Stage) menuBar.getScene().getWindow();
+            stage.setFullScreen(!stage.isFullScreen());
+        });
+        
+        viewMenu.getItems().addAll(zoomInItem, zoomOutItem, resetViewItem, new SeparatorMenuItem(), fullscreenItem);
+        
+        // Help menu
+        Menu helpMenu = new Menu("Help");
+        MenuItem shortcutsItem = new MenuItem("Keyboard Shortcuts");
+        MenuItem aboutItem = new MenuItem("About");
+        
+        shortcutsItem.setAccelerator(KeyCombination.keyCombination("Ctrl+H"));
+        
+        shortcutsItem.setOnAction(e -> showKeyboardShortcuts());
+        aboutItem.setOnAction(e -> showAbout());
+        
+        helpMenu.getItems().addAll(shortcutsItem, aboutItem);
+        
+        menuBar.getMenus().addAll(fileMenu, viewMenu, helpMenu);
+        return menuBar;
+    }
+    
     private HBox createControlPanel() {
         HBox controlPanel = new HBox(10);
         controlPanel.setPadding(new Insets(10));
@@ -381,20 +455,6 @@ public class MandelbrotApplication extends Application {
         });
         
         calculateButton.setOnAction(e -> calculateMandelbrot());
-        
-        Button zoomInButton = new Button("Zoom In");
-        Button zoomOutButton = new Button("Zoom Out");
-        Button resetButton = new Button("Reset View");
-        Button saveButton = new Button("Save Image");
-        Button saveHDButton = new Button("Save HD");
-        Button helpButton = new Button("Help (H)");
-        
-        zoomInButton.setOnAction(e -> zoomAt(WIDTH / 2.0, HEIGHT / 2.0, ZOOM_FACTOR));
-        zoomOutButton.setOnAction(e -> zoomAt(WIDTH / 2.0, HEIGHT / 2.0, 1.0 / ZOOM_FACTOR));
-        resetButton.setOnAction(e -> resetView());
-        saveButton.setOnAction(e -> saveImage(false));
-        saveHDButton.setOnAction(e -> saveImage(true));
-        helpButton.setOnAction(e -> showKeyboardShortcuts());
         
         // Color palette selector
         ComboBox<ColorPalette.PaletteType> paletteSelector = new ComboBox<>();
@@ -486,23 +546,15 @@ public class MandelbrotApplication extends Application {
             new Label("Fractal:"),
             fractalSelector,
             new Separator(),
-            new Label("Max Iterations:"), 
+            new Label("Iterations:"), 
             iterationField, 
             calculateButton, 
             new Separator(),
-            zoomInButton, 
-            zoomOutButton, 
-            resetButton,
-            new Separator(),
-            saveButton,
-            saveHDButton,
-            new Separator(),
             new Label("Color:"),
             paletteSelector,
-            new Label("Calculator:"),
-            strategySelector,
             new Separator(),
-            helpButton
+            new Label("Calculator:"),
+            strategySelector
         );
         
         return controlPanel;
