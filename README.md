@@ -1,73 +1,182 @@
 # Mandelbrot Explorer
 
-Mandelbrot Explorer is a JavaFX application that allows users to visualize and explore the Mandelbrot set. You can zoom in and out and drag around to explore different areas of the set.
+An advanced JavaFX application for exploring various fractal sets with real-time rendering, multiple calculation strategies, and extensive customization options.
 
-## Functionality
+## Features
 
-The application provides the following features:
+### Core Functionality
 
-1. **Visualize the Mandelbrot Set**: The application will display the Mandelbrot set in a window when launched.
-2. **Zoom**: The application allows users to zoom in and out of the Mandelbrot set visualization using the "Zoom In" and "Zoom Out" buttons.
-3. **Navigation**: Users can navigate different areas of the Mandelbrot set by clicking and dragging their mouse across the visualization.
-4. **Custom Iteration**: Users can set the number of iterations to adjust the level of detail in the Mandelbrot set visualization using a text field labeled "Iterations".
-5. **Recalculate**: After changing the number of iterations, the user can press the "Recalculate" button to redraw the Mandelbrot set with the new level of detail.
+- **Multiple Fractal Types**: Explore different fractal sets including:
+  - Mandelbrot Set
+  - Julia Sets with customizable parameters
+  - Burning Ship Fractal
+  - Tricorn (Mandelbar) Fractal
+  - Multibrot Fractals (power 3 and 4)
+  - Phoenix Fractal
 
+- **Real-time Navigation**:
+  - Click and drag to pan around the fractal
+  - Smooth zooming with mouse scroll wheel
+  - Double-click to zoom in at a specific point
+  - Pinch-to-zoom gesture support on trackpads
+  - Swipe gestures for quick navigation
+
+- **Performance Options**:
+  - Multi-threaded calculation using ExecutorService
+  - Fork/Join framework for parallel processing
+  - Single-threaded option for comparison
+  - Efficient pixel-by-pixel rendering
+
+- **Visual Customization**:
+  - Multiple color palettes (Smooth, Classic, Fire, Ocean, Rainbow, Grayscale, High Contrast)
+  - Adjustable iteration count (1-10000)
+  - Smooth color gradients for better visual quality
+
+### Advanced Features
+
+- **Image Export**:
+  - Save current view as PNG/JPG
+  - Export high-resolution images (up to 4K and 8K)
+  - Batch export capabilities
+
+- **Julia Set Parameters**:
+  - Interactive parameter adjustment
+  - Preset famous Julia sets (Dragon, Dendrite, Rabbit, etc.)
+  - Real-time preview of parameter changes
+
+- **User Interface**:
+  - Clean menu-based interface
+  - Fullscreen support
+  - Status bar with coordinates and zoom level
+  - Progress indicator for long calculations
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `+` / `-` | Zoom in/out |
+| Arrow Keys | Pan in direction |
+| `R` | Reset to default view |
+| `F` | Cycle through fractal types |
+| `C` | Cycle through color palettes |
+| `[` / `]` | Decrease/increase iterations |
+| `Space` | Recalculate fractal |
+| `S` | Save current image |
+| `Shift+S` | Save high-resolution image |
+| `H` | Show help/keyboard shortcuts |
+| `Ctrl+R` | Reset view |
+| `Ctrl+S` | Save image |
+| `Ctrl+Shift+S` | Save HD image |
+| `Ctrl+Q` | Exit application |
+| `F11` | Toggle fullscreen |
+
+## Mouse Controls
+
+- **Left Click + Drag**: Pan around the fractal
+- **Double Click**: Zoom in at clicked point
+- **Right Click**: Zoom out at clicked point
+- **Scroll Wheel**: Zoom in/out at cursor position
+- **Pinch Gesture**: Zoom in/out (on supported trackpads)
+- **Two-finger Swipe**: Quick pan in swipe direction
 
 ## Getting Started
 
-These instructions will help you get a copy of the project up and running on your local machine for development and testing purposes.
-
 ### Prerequisites
 
-To run this application, you will need:
-
-1. Java Development Kit (JDK) 21.
-2. JavaFX.
+- Java Development Kit (JDK) 21 or higher
+- JavaFX 21 (included via Gradle)
 
 ### Installation
 
-1. Clone the repository to your local machine.
-2. Open the project in your preferred Java IDE.
-3. Make sure that the JDK is set to the correct version (JDK 21) in your IDE's project structure settings.
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/mandelbrot-explorer.git
+cd mandelbrot-explorer
+```
 
-## Usage
+2. Build the project:
+```bash
+./gradlew build
+```
 
-Run the main method in the `MandelbrotApplication` class to start the program. This will open a window showing the Mandelbrot visualization. You can click and drag to pan around the visualization, and use the "Zoom In" and "Zoom Out" buttons to zoom in and out.
+3. Run the application:
+```bash
+./gradlew run
+```
 
-# Outcomes
+### Building a Distribution
 
-This section contains a sequence of images captured during a zoom-in process within the Mandelbrot set.
+To create a distributable package:
 
-![Initial View](./images/zoom1.png)
-*Initial view of the Mandelbrot set.*
+```bash
+./gradlew distZip
+```
 
-![Zoom Level 1](./images/zoom2.png)
-*Zoom level 1.*
+The distribution will be created in `build/distributions/`.
 
-![Zoom Level 2](./images/zoom3.png)
-*Zoom level 2.*
+## Usage Guide
 
-![Zoom Level 3](./images/zoom4.png)
-*Zoom level 3.*
+### Exploring Fractals
 
-![Zoom Level 4](./images/zoom5.png)
-*Zoom level 4.*
+1. **Select a Fractal Type**: Use the dropdown menu to choose from available fractals
+2. **Adjust Iterations**: Higher values reveal more detail but take longer to compute
+3. **Navigate**: Click and drag to move around, scroll to zoom
+4. **Change Colors**: Select different palettes from the Color dropdown
+5. **Save Your Discovery**: Use File > Save Image to capture your view
 
-![Zoom Level 5](./images/zoom6.png)
-*Zoom level 5.*
+### Julia Set Exploration
 
-![Final Zoom Level](./images/zoom7.png)
-*Final zoom level.*
+When "Julia Set" is selected, additional controls appear:
 
+1. **Preset Selection**: Choose from famous Julia sets
+2. **Custom Parameters**: Enter your own complex number (c = real + imaginary*i)
+3. **Apply Changes**: Click Apply or press Enter to update the fractal
 
-## Future Work
+### Performance Optimization
 
-The following points highlight the planned enhancements for the Mandelbrot Explorer:
+- For faster rendering, use lower iteration counts
+- The Fork/Join calculator performs best on multi-core systems
+- Use Executor Service for balanced performance
+- Single-threaded mode is useful for debugging
 
-1. **Additional Fractal Sets**: The current version of the application only supports the Mandelbrot set. We plan to add support for more fractal sets such as the Julia set, Burning Ship fractal, and others to provide users with more options for exploration.
+## Gallery
 
-2. **Save Fractals Functionality**: We aim to empower users to save their favorite fractal images. The users will be able to save any fractal, at any zoom level, they create by simply clicking a "Save Fractal" button. The saved images may then be viewed later or used for other purposes.
+The `images/` directory contains example fractals captured using the application:
 
-3. **Bookmark Locations**: In a future release, we are planning to include a feature that lets users bookmark their favorite spots within the fractal sets. This capability will allow users to quickly revisit their favorite discoveries.
+- Various zoom levels of the Mandelbrot set
+- Different Julia set configurations
+- Examples using different color palettes
 
-Keep an eye on our GitHub repository for updates and new feature releases.
+## Technical Details
+
+### Architecture
+
+- **Strategy Pattern**: For swappable calculation algorithms
+- **Observer Pattern**: For UI updates and event handling
+- **Multi-threading**: Parallel computation for performance
+- **Immutable Data**: ComplexNumber records for thread safety
+
+### Fractal Algorithms
+
+Each fractal implements the `Fractal` interface with its unique iteration formula:
+
+- **Mandelbrot**: z(n+1) = z(n)² + c, where c is the pixel coordinate
+- **Julia**: z(n+1) = z(n)² + c, where c is a fixed parameter
+- **Burning Ship**: z(n+1) = (|Re(z)|+i|Im(z)|)² + c
+- **Tricorn**: z(n+1) = conj(z(n))² + c
+- **Multibrot**: z(n+1) = z(n)^d + c, where d is the power
+- **Phoenix**: z(n+1) = z(n)² + c + p*z(n-1)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Acknowledgments
+
+- JavaFX community for the excellent graphics framework
+- Fractal mathematics community for the beautiful algorithms
+- Contributors and testers who helped improve the application
