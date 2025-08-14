@@ -63,6 +63,10 @@ public class MandelbrotApplication extends Application {
     private MandelbrotCalculatorStrategy calculator;
     private ColorPalette.PaletteType currentPalette = ColorPalette.PaletteType.SMOOTH;
     private Fractal currentFractal = new MandelbrotFractal();
+    private HBox juliaParameterBox;
+    private TextField juliaRealField;
+    private TextField juliaImagField;
+    private ComboBox<String> juliaPresetSelector;
     
     private final AtomicBoolean isCalculating = new AtomicBoolean(false);
     private Task<int[][]> currentTask;
@@ -340,6 +344,98 @@ public class MandelbrotApplication extends Application {
         });
     }
     
+    private void createJuliaParameterControls() {
+        juliaParameterBox = new HBox(10);
+        juliaParameterBox.setVisible(false);
+        juliaParameterBox.setManaged(false);
+        
+        // Create preset selector
+        juliaPresetSelector = new ComboBox<>();
+        juliaPresetSelector.getItems().addAll(
+            "Dragon",
+            "Dendrite",
+            "Rabbit",
+            "Spiral",
+            "Feather",
+            "San Marco",
+            "Siegel Disk",
+            "Custom"
+        );
+        juliaPresetSelector.setValue("Dragon");
+        
+        // Create parameter input fields
+        juliaRealField = new TextField("-0.8");
+        juliaImagField = new TextField("0.156");
+        juliaRealField.setPrefWidth(80);
+        juliaImagField.setPrefWidth(80);
+        
+        // Add validation for numeric input
+        juliaRealField.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.matches("-?\\d*\\.?\\d*")) {
+                juliaRealField.setText(oldText);
+            }
+        });
+        juliaImagField.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.matches("-?\\d*\\.?\\d*")) {
+                juliaImagField.setText(oldText);
+            }
+        });
+        
+        // Handle preset selection
+        juliaPresetSelector.setOnAction(e -> {
+            String preset = juliaPresetSelector.getValue();
+            ComplexNumber param = switch (preset) {
+                case "Dragon" -> JuliaFractal.DRAGON;
+                case "Dendrite" -> JuliaFractal.DENDRITE;
+                case "Rabbit" -> JuliaFractal.RABBIT;
+                case "Spiral" -> JuliaFractal.SPIRAL;
+                case "Feather" -> JuliaFractal.FEATHER;
+                case "San Marco" -> JuliaFractal.SAN_MARCO;
+                case "Siegel Disk" -> JuliaFractal.SIEGEL_DISK;
+                default -> null;
+            };
+            
+            if (param != null) {
+                juliaRealField.setText(String.format("%.4f", param.real()));
+                juliaImagField.setText(String.format("%.4f", param.imaginary()));
+                updateJuliaParameter();
+            }
+        });
+        
+        // Update Julia parameter when fields change
+        juliaRealField.setOnAction(e -> updateJuliaParameter());
+        juliaImagField.setOnAction(e -> updateJuliaParameter());
+        
+        Button applyButton = new Button("Apply");
+        applyButton.setOnAction(e -> updateJuliaParameter());
+        
+        juliaParameterBox.getChildren().addAll(
+            new Separator(),
+            new Label("Julia Preset:"),
+            juliaPresetSelector,
+            new Label("c ="),
+            juliaRealField,
+            new Label("+"),
+            juliaImagField,
+            new Label("i"),
+            applyButton
+        );
+    }
+    
+    private void updateJuliaParameter() {
+        try {
+            double real = Double.parseDouble(juliaRealField.getText());
+            double imag = Double.parseDouble(juliaImagField.getText());
+            
+            if (currentFractal instanceof JuliaFractal julia) {
+                julia.setParameter(new ComplexNumber(real, imag));
+                calculateMandelbrot();
+            }
+        } catch (NumberFormatException e) {
+            // Invalid input, ignore
+        }
+    }
+    
     private void showAbout() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About Mandelbrot Explorer");
@@ -446,6 +542,9 @@ public class MandelbrotApplication extends Application {
         HBox controlPanel = new HBox(10);
         controlPanel.setPadding(new Insets(10));
         
+        // Create Julia parameter controls (initially hidden)
+        createJuliaParameterControls();
+        
         // Iteration input with validation
         iterationField.setPrefWidth(80);
         iterationField.textProperty().addListener((obs, oldText, newText) -> {
@@ -481,12 +580,21 @@ public class MandelbrotApplication extends Application {
         fractalSelector.setValue("Mandelbrot");
         fractalSelector.setOnAction(e -> {
             String selectedFractal = fractalSelector.getValue();
+            // Show/hide Julia parameter controls
+            juliaParameterBox.setVisible(selectedFractal.equals("Julia Set"));
+            juliaParameterBox.setManaged(selectedFractal.equals("Julia Set"));
+            
             switch (selectedFractal) {
                 case "Julia Set" -> {
-                    currentFractal = new JuliaFractal();
+                    JuliaFractal julia = new JuliaFractal();
+                    currentFractal = julia;
                     centerX = currentFractal.getDefaultCenter().real();
                     centerY = currentFractal.getDefaultCenter().imaginary();
                     ZOOM = currentFractal.getDefaultZoom();
+                    // Update parameter fields with current values
+                    ComplexNumber param = julia.getParameter();
+                    juliaRealField.setText(String.format("%.4f", param.real()));
+                    juliaImagField.setText(String.format("%.4f", param.imaginary()));
                 }
                 case "Burning Ship" -> {
                     currentFractal = new BurningShipFractal();
@@ -545,6 +653,7 @@ public class MandelbrotApplication extends Application {
         controlPanel.getChildren().addAll(
             new Label("Fractal:"),
             fractalSelector,
+            juliaParameterBox,
             new Separator(),
             new Label("Iterations:"), 
             iterationField, 
