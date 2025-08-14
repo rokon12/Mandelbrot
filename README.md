@@ -93,8 +93,8 @@ An advanced JavaFX application for exploring various fractal sets with real-time
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/mandelbrot-explorer.git
-cd mandelbrot-explorer
+git clone git@github.com:rokon12/Mandelbrot.git
+cd Mandelbrot
 ```
 
 2. Build the project:
