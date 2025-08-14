@@ -56,3 +56,8 @@ jlink {
 jlinkZip {
     group = 'distribution'
 }
+
+def appVersion = version.replaceAll('-SNAPSHOT', '')
+jpackage{
+    appVersion = "$appVersion"
+}

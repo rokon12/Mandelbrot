@@ -3,12 +3,26 @@ package ca.bazlur.mandelbrot;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-public class MandelbrotCalculator {
-    int numThreads;
-    ExecutorService executor;
-    {
-        numThreads = Runtime.getRuntime().availableProcessors();
-        executor = Executors.newFixedThreadPool(numThreads);
+public class MandelbrotCalculator implements MandelbrotCalculatorStrategy {
+    private final int numThreads;
+    private final ExecutorService executor;
+    
+    public MandelbrotCalculator() {
+        this.numThreads = Runtime.getRuntime().availableProcessors();
+        this.executor = Executors.newFixedThreadPool(numThreads);
+    }
+    
+    @Override
+    public void close() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     public int[][] calculateIterations(int width, int height, double centerX, double centerY, double zoom, int maxIterations) {
@@ -36,11 +50,12 @@ public class MandelbrotCalculator {
         return iterations;
     }
 
-    private int calculatePointIterations(ComplexNumber c, int maxIterations) {
+    private static int calculatePointIterations(ComplexNumber c, int maxIterations) {
         ComplexNumber z = new ComplexNumber(0, 0);
         int iterations = 0;
+        double escapeRadiusSquared = 256.0; // Use larger escape radius for smoother coloring
 
-        while (z.magnitudeSquared() < 4 && iterations < maxIterations) {
+        while (z.magnitudeSquared() < escapeRadiusSquared && iterations < maxIterations) {
             z = z.square().add(c);
             iterations++;
         }
@@ -48,13 +63,13 @@ public class MandelbrotCalculator {
         return iterations;
     }
 
-    private ComplexNumber screenToComplex(int x, int y, int width, int height, double centerX, double centerY, double zoom) {
+    private static ComplexNumber screenToComplex(int x, int y, int width, int height, double centerX, double centerY, double zoom) {
         double real = (x - width / 2.0) / zoom + centerX;
         double imaginary = (y - height / 2.0) / zoom + centerY;
         return new ComplexNumber(real, imaginary);
     }
 
-    class MandelbrotTask implements Callable<Void> {
+    static class MandelbrotTask implements Callable<Void> {
         private final int[][] iterations;
         private final int startRow;
         private final int endRow;
