@@ -2,6 +2,9 @@
 
 An advanced JavaFX application for exploring various fractal sets with real-time rendering, multiple calculation strategies, and extensive customization options.
 
+![Mandelbrot Explorer](./images/mandelbrot_1755144351211.png)
+*Explore the infinite beauty of fractals with real-time navigation and customization*
+
 ## Features
 
 ### Core Functionality
@@ -141,11 +144,48 @@ When "Julia Set" is selected, additional controls appear:
 
 ## Gallery
 
-The `images/` directory contains example fractals captured using the application:
+### Example Fractals
 
-- Various zoom levels of the Mandelbrot set
-- Different Julia set configurations
-- Examples using different color palettes
+Here are some stunning fractals captured using the Mandelbrot Explorer:
+
+#### Mandelbrot Set Explorations
+
+![Mandelbrot Deep Zoom 1](./images/mandelbrot_1755140184872.png)
+*Deep zoom into the Mandelbrot set showing intricate spiral patterns*
+
+![Mandelbrot Deep Zoom 2](./images/mandelbrot_1755140343632.png)
+*Another region revealing self-similar fractal structures*
+
+![Mandelbrot Colorful Region](./images/mandelbrot_1755140704808.png)
+*Vibrant colors highlighting the boundary complexity*
+
+#### Different Color Palettes
+
+![Ocean Palette](./images/mandelbrot_1755140782037.png)
+*The same region rendered with the Ocean color palette*
+
+![Fire Gradient](./images/mandelbrot_1755141810429.png)
+*Dramatic Fire gradient showing depth and detail*
+
+#### Ultra-Deep Zooms
+
+![Deep Spiral](./images/mandelbrot_1755144326606.png)
+*Incredibly detailed spiral formation at extreme magnification*
+
+![Fractal Lightning](./images/mandelbrot_1755144351211.png)
+*Lightning-like tendrils reaching into the complex plane*
+
+![Mini Mandelbrot](./images/mandelbrot_1755144373074.png)
+*A miniature Mandelbrot set found deep within the fractal*
+
+### Exploring Different Regions
+
+The Mandelbrot set contains infinite complexity. Some interesting coordinates to explore:
+
+- **Seahorse Valley**: Center at (-0.75, 0.1), Zoom: 500
+- **Elephant Valley**: Center at (0.275, 0), Zoom: 1000  
+- **Triple Spiral**: Center at (-0.1011, 0.9563), Zoom: 5000
+- **Mini Mandelbrot**: Center at (-1.25066, 0.02012), Zoom: 100000
 
 ## Technical Details
 
