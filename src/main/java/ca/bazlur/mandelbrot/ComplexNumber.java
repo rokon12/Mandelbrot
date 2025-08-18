@@ -1,6 +1,6 @@
 package ca.bazlur.mandelbrot;
 
-public record ComplexNumber(double real, double imaginary) {
+public value record ComplexNumber(double real, double imaginary) {
 
     public double magnitudeSquared() {
         return real * real + imaginary * imaginary;
