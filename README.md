@@ -86,8 +86,8 @@ An advanced JavaFX application for exploring various fractal sets with real-time
 
 ### Prerequisites
 
-- Java Development Kit (JDK) 21 or higher
-- JavaFX 21 (included via Gradle)
+- Java Development Kit (JDK) 26 
+- JavaFX 26 (included via maven)
 
 ### Installation
 
@@ -99,12 +99,12 @@ cd Mandelbrot
 
 2. Build the project:
 ```bash
-./gradlew build
+mvn build
 ```
 
 3. Run the application:
 ```bash
-./gradlew run
+mvn javafx:run
 ```
 
 ### Building a Distribution
@@ -195,7 +195,7 @@ This application demonstrates the memory efficiency improvements from **Project 
 
 Analysis based on JFR (Java Flight Recorder) profiling of identical fractal rendering workloads:
 
-| Metric | Pre-Valhalla (Regular Record) | Post-Valhalla (Value Record) | Improvement |
+| Metric | Valhalla (Value Record)  | Pre-Valhalla (Simple Record) | Improvement |
 |--------|------------------------------|------------------------------|-------------|
 | **Object Allocations** | 238 samples | 5,844 samples | 24x fewer allocations |
 | **GC Collections** | 1 GC cycle | 143 GC cycles | 143x less GC pressure |
