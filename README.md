@@ -1,4 +1,4 @@
-# Mandelbrot Explorer, with a touch of Valhalla (forked from https://github.com/rokon12/Mandelbrot)
+# Mandelbrot Explorer, with a touch of Valhalla 
 
 An advanced JavaFX application for exploring various fractal sets with real-time rendering, multiple calculation strategies, and extensive customization options.
 
